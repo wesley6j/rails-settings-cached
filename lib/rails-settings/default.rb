@@ -29,9 +29,15 @@ module RailsSettings
         val
       end
 
+      def keep_current?
+        Rails.env.production? || Time.zone.now - @token < 3.seconds
+      end
+
       def instance
-        return @instance if defined? @instance
+        return @instance if defined?(@instance) && keep_current?
         @instance = new
+        @token = Time.zone.now
+        Rails.logger.warn 'load setting from yml'
         @instance
       end
     end
